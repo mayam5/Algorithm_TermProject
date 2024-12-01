@@ -1,29 +1,37 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-int numRabbits(int* answers, int answersSize) {
-    // 답변 값의 빈도를 저장할 배열 (0~999의 값만 사용 가능)
-    int count[1000] = {0};
+def rabin_karp(text, pat):
+    n = len(text)
+    m = len(pat)
+    prime = 101
+    d = 256
     
-    // 각 답변 값이 몇 번 등장했는지 계산
-    for (int i = 0; i < answersSize; i++) {
-        count[answers[i]]++;
-    }
+    h = 1
+    for i in range(m - 1):
+        h = (h * d) % prime
     
-    int totalRabbits = 0; // 최소 토끼 수를 저장하는 변수
+    pat_hash = 0
+    text_hash = 0
+    for i in range(m):
+        pat_hash = (d * pat_hash + ord(pat[i])) % prime
+        text_hash = (d * text_hash + ord(text[i])) % prime
+    
+    for i in range(n - m + 1):
+        if pat_hash == text_hash:
+            if text[i:i + m] == pat:
+                return "YES"
+        
+        if i < n - m:
+            text_hash = (d * (text_hash - ord(text[i]) * h) + ord(text[i + m])) % prime
+            if text_hash < 0:
+                text_hash += prime
+    
+    return "NO"
 
-    // 모든 가능한 답변 값을 순회
-    for (int i = 0; i < 1000; i++) {
-        if (count[i] > 0) { // 답변 i가 존재하는 경우에만 처리
-            int groupSize = i + 1; // 그룹 크기는 (답변 값 + 1)
-            
-            // 필요한 그룹의 수 계산 (올림 계산)
-            int groups = (count[i] + groupSize - 1) / groupSize;
+def main():
+    T = int(input())
+    for _ in range(T):
+        text = input().strip()
+        pat = input().strip()
+        print(rabin_karp(text, pat))
 
-            // 그룹별로 추가해야 할 토끼 수를 계산하여 총 토끼 수에 더함
-            totalRabbits += groups * groupSize;
-        }
-    }
-
-    return totalRabbits; // 최소 토끼 수 반환
-}
+if __name__ == "__main__":
+    main()
